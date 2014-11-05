@@ -46,7 +46,6 @@ public class ProjectComponent extends AbstractProjectComponent {
         EditorEventMulticaster multicaster = EditorFactory.getInstance().getEventMulticaster();
         multicaster.addCaretListener(
                 new CaretAdapter() {
-
                     public void caretPositionChanged(CaretEvent e) {
                         caretMoved(e);
                     }
@@ -73,8 +72,13 @@ public class ProjectComponent extends AbstractProjectComponent {
     private void caretMoved(CaretEvent e) {
         System.out.println((new StringBuilder()).append("Caret changed: ").append(e).toString());
         Editor editor = e.getEditor();
+        Project project = editor.getProject();
+        if (project == null || project.isDisposed()) {
+            return;
+        }
+
         PsiFile psiFile = psiDocumentManager.getCachedPsiFile(editor.getDocument());
-        if (psiFile != null && psiFile.getName().contains("spec")) {
+        if (psiFile != null && psiFile.getName().contains("spec")) { // or "shared_example"
             CaretModel caretModel = e.getCaret().getCaretModel();
             int offset = caretModel.getOffset();
             PsiElement selection = psiFile.findElementAt(offset);
@@ -136,33 +140,37 @@ public class ProjectComponent extends AbstractProjectComponent {
         }
 
         void searchScopeAndAscend(PsiElement selection) {
-            if (selection == null)
+            if (selection == null) {
                 return;
-            PsiElement arr$[] = selection.getChildren();
-            int len$ = arr$.length;
-            for (int i$ = 0; i$ < len$; i$++) {
-                PsiElement psiElement = arr$[i$];
-                if (!(psiElement instanceof RBlockCall))
-                    continue;
-                RBlockCall blockCall = (RBlockCall) psiElement;
-                RPossibleCall call = blockCall.getCall();
-                String command = call.getPossibleCommand();
-                if (LET_KEYWORDS.contains(command)) {
-                    processLetOrSubject(blockCall);
-                    continue;
-                }
-                if (BEFORE_AFTER_KEYWORDS.contains(command))
-                    processBeforeOrAfter(blockCall);
             }
 
-            if (selection instanceof RBlockCall) {
-                RBlockCall blockCall = (RBlockCall) selection;
-                RPossibleCall call = blockCall.getCall();
-                String command = call.getPossibleCommand();
-                if (CONTEXT_KEYWORDS.contains(command))
-                    processContext(blockCall);
+            System.out.println("containing file: " + selection.getContainingFile());
+            try {
+                for (PsiElement psiElement : selection.getChildren()) {
+                    if (!(psiElement instanceof RBlockCall))
+                        continue;
+                    RBlockCall blockCall = (RBlockCall) psiElement;
+                    RPossibleCall call = blockCall.getCall();
+                    String command = call.getPossibleCommand();
+                    if (LET_KEYWORDS.contains(command)) {
+                        processLetOrSubject(blockCall);
+                        continue;
+                    }
+                    if (BEFORE_AFTER_KEYWORDS.contains(command))
+                        processBeforeOrAfter(blockCall);
+                }
+
+                if (selection instanceof RBlockCall) {
+                    RBlockCall blockCall = (RBlockCall) selection;
+                    RPossibleCall call = blockCall.getCall();
+                    String command = call.getPossibleCommand();
+                    if (CONTEXT_KEYWORDS.contains(command))
+                        processContext(blockCall);
+                }
+                searchScopeAndAscend(selection.getParent());
+            } catch (AssertionError e) {
+                e.printStackTrace();
             }
-            searchScopeAndAscend(selection.getParent());
         }
 
         void processLetOrSubject(RBlockCall el) {
