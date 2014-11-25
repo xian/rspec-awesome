@@ -80,12 +80,12 @@ public class StatusConsole {
 
     public static class ContextItem extends ListItem {
         private final Editor editor;
-        private final RspecContextBuilder.Part part;
+        private final Part part;
         private final int offset;
         private final int index;
         private final boolean isLast;
 
-        public ContextItem(Editor editor, RspecContextBuilder.Part part, int offset, int index, boolean isLast) {
+        public ContextItem(Editor editor, Part part, int offset, int index, boolean isLast) {
             super(editor, offset);
             this.editor = editor;
             this.part = part;
@@ -100,9 +100,9 @@ public class StatusConsole {
     }
 
     public static class BeforeItem extends ListItem {
-        private final RspecContextBuilder.BeforeOrAfter beforeOrAfter;
+        private final BeforeOrAfter beforeOrAfter;
 
-        public BeforeItem(Editor editor, RspecContextBuilder.BeforeOrAfter beforeOrAfter) {
+        public BeforeItem(Editor editor, BeforeOrAfter beforeOrAfter) {
             super(editor, beforeOrAfter.getOffset());
             this.beforeOrAfter = beforeOrAfter;
         }
@@ -123,9 +123,9 @@ public class StatusConsole {
     }
 
     public static class LetListItem extends ListItem {
-        private RspecContextBuilder.Let let;
+        private Let let;
 
-        public LetListItem(RspecContextBuilder.Let let, Editor editor) {
+        public LetListItem(Let let, Editor editor) {
             super(editor, let.getOffset());
             this.let = let;
         }

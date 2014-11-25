@@ -35,14 +35,14 @@ public class ShowLetValue extends AnAction {
     public void showLetHintFor(Editor editor, PsiElement element, RspecContextBuilder contextBuilder) {
         String selectionText = element.getText();
         if (selectionText != null) {
-            RspecContextBuilder.Let let = contextBuilder.getLet(selectionText);
+            Let let = contextBuilder.getLet(selectionText);
             if (let != null) {
                 showLetHint(editor, let);
             }
         }
     }
 
-    public void showLetHint(Editor editor, RspecContextBuilder.Let let) {
+    public void showLetHint(Editor editor, Let let) {
         System.out.println(let.getName() + ": " + let.getValue());
         JLabel label = new JLabel(String.format("<html>%s(:%s) { <b>%s</b> }</html>",
                 htmlEscape(let.getType()), htmlEscape(let.getName()), htmlEscape(let.getValue())));
