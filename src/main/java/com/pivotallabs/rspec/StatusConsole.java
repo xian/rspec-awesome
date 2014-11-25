@@ -58,10 +58,6 @@ public class StatusConsole {
         return s.replaceAll("\\n+", " <b style=\"color: blue;\">\266</b> ");
     }
 
-    private static String htmlEscape(String s) {
-        return s.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
-    }
-
     private static class MyListCellRenderer extends JEditorPane implements ListCellRenderer {
         public static final Font FONT = Font.getFont("Monospaced");
 
@@ -84,12 +80,12 @@ public class StatusConsole {
 
     public static class ContextItem extends ListItem {
         private final Editor editor;
-        private final ProjectComponent.ContextBuilder.Part part;
+        private final RspecContextBuilder.Part part;
         private final int offset;
         private final int index;
         private final boolean isLast;
 
-        public ContextItem(Editor editor, ProjectComponent.ContextBuilder.Part part, int offset, int index, boolean isLast) {
+        public ContextItem(Editor editor, RspecContextBuilder.Part part, int offset, int index, boolean isLast) {
             super(editor, offset);
             this.editor = editor;
             this.part = part;
@@ -99,20 +95,20 @@ public class StatusConsole {
         }
 
         public String getText() {
-            return StatusConsole.htmlEscape(part.getText());
+            return Util.htmlEscape(part.getText());
         }
     }
 
     public static class BeforeItem extends ListItem {
-        private final ProjectComponent.ContextBuilder.BeforeOrAfter beforeOrAfter;
+        private final RspecContextBuilder.BeforeOrAfter beforeOrAfter;
 
-        public BeforeItem(Editor editor, ProjectComponent.ContextBuilder.BeforeOrAfter beforeOrAfter) {
+        public BeforeItem(Editor editor, RspecContextBuilder.BeforeOrAfter beforeOrAfter) {
             super(editor, beforeOrAfter.getOffset());
             this.beforeOrAfter = beforeOrAfter;
         }
 
         public String getText() {
-            return (new StringBuilder()).append(beforeOrAfter.getType()).append(" { ").append(StatusConsole.joinNewlines(StatusConsole.htmlEscape(beforeOrAfter.getText()))).append(" }").toString();
+            return (new StringBuilder()).append(beforeOrAfter.getType()).append(" { ").append(StatusConsole.joinNewlines(Util.htmlEscape(beforeOrAfter.getText()))).append(" }").toString();
         }
     }
 
@@ -127,15 +123,19 @@ public class StatusConsole {
     }
 
     public static class LetListItem extends ListItem {
-        private ProjectComponent.ContextBuilder.Let let;
+        private RspecContextBuilder.Let let;
 
-        public LetListItem(ProjectComponent.ContextBuilder.Let let, Editor editor) {
+        public LetListItem(RspecContextBuilder.Let let, Editor editor) {
             super(editor, let.getOffset());
             this.let = let;
         }
 
         public String getText() {
-            return two_columns(let.getName(), let.getValue(), let.getType().contains("!"));
+            String label = let.getName();
+            if (let.getType().startsWith("subject")) {
+                label = "subject:" + label;
+            }
+            return two_columns(label, let.getValue(), let.getType().contains("!"));
         }
     }
 
@@ -152,7 +152,7 @@ public class StatusConsole {
             int leftLength = left.length();
             String nbsps = (new String(new char[Math.max(28 - leftLength, 0)])).replace("\0", "&nbsp;");
             return MessageFormat.format("<b{0}>{1}</b>{2} {3}", new Object[]{
-                    leftIsRed ? " style=\"color: red;\"" : "", StatusConsole.htmlEscape(left).replaceAll(" ", "&nbsp;"), nbsps, StatusConsole.joinNewlines(StatusConsole.htmlEscape(right))
+                    leftIsRed ? " style=\"color: red;\"" : "", Util.htmlEscape(left).replaceAll(" ", "&nbsp;"), nbsps, StatusConsole.joinNewlines(Util.htmlEscape(right))
             });
         }
 

@@ -39,7 +39,11 @@
   </project-components>
 
   <actions>
-    <!-- Add your actions here -->
+    <action id="com.pivotallabs.rspecawesome.ShowLetValue" class="com.pivotallabs.rspec.ShowLetValue"
+            text="Show Let Value">
+      <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+      <keyboard-shortcut keymap="$default" first-keystroke="ctrl meta alt L"/>
+    </action>
   </actions>
 
 </idea-plugin>
