@@ -15,7 +15,7 @@ import javax.swing.*;
 
 import static com.pivotallabs.rspec.Util.htmlEscape;
 
-public class ShowLetValue extends AnAction {
+public class ShowLetValueAction extends AnAction {
     public void actionPerformed(AnActionEvent e) {
         Editor editor = e.getData(PlatformDataKeys.EDITOR);
         PsiFile psiFile = e.getData(LangDataKeys.PSI_FILE);
@@ -43,7 +43,6 @@ public class ShowLetValue extends AnAction {
     }
 
     public void showLetHint(Editor editor, Let let) {
-        System.out.println(let.getName() + ": " + let.getValue());
         JLabel label = new JLabel(String.format("<html>%s(:%s) { <b>%s</b> }</html>",
                 htmlEscape(let.getType()), htmlEscape(let.getName()), htmlEscape(let.getValue())));
         label.setFont(editor.getColorsScheme().getFont(EditorFontType.CONSOLE_PLAIN));
@@ -56,7 +55,7 @@ public class ShowLetValue extends AnAction {
     public void update(AnActionEvent e) {
         Editor editor = e.getData(PlatformDataKeys.EDITOR);
         PsiFile psiFile = e.getData(LangDataKeys.PSI_FILE);
-        if (psiFile == null || editor == null)
+        if (psiFile == null || editor == null || !Util.isRspecFile(psiFile))
             return;
 
         int offset = editor.getCaretModel().getOffset();
@@ -65,7 +64,6 @@ public class ShowLetValue extends AnAction {
             return;
 
         IElementType elementType = element.getNode().getElementType();
-        System.out.println("*** update: " + element.getText() + " (" + elementType + ")");
         if (elementType.getLanguage().isKindOf("ruby") && elementType.toString().equals("identifier")) {
             e.getPresentation().setEnabled(true);
         } else {

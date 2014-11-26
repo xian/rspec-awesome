@@ -20,7 +20,6 @@ import com.intellij.openapi.wm.ex.ToolWindowManagerEx;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.PsiManagerEx;
 import com.intellij.ui.content.ContentFactory;
-import org.jetbrains.plugins.ruby.ruby.lang.RubyFileType;
 
 import java.util.regex.Pattern;
 
@@ -48,13 +47,6 @@ public class ProjectComponent extends AbstractProjectComponent {
                                 caretMoved(e);
                             }
                         });
-                    }
-                }
-        );
-        multicaster.addDocumentListener(
-                new DocumentAdapter() {
-                    public void documentChanged(DocumentEvent e) {
-                        System.out.println((new StringBuilder()).append("Document changed: ").append(e).toString());
                     }
                 }
         );
@@ -98,7 +90,6 @@ public class ProjectComponent extends AbstractProjectComponent {
     }
 
     private void caretMoved(CaretEvent e) {
-        System.out.println((new StringBuilder()).append("Caret changed: ").append(e).toString());
         Editor editor = e.getEditor();
         Project project = editor.getProject();
         if (project == null || project.isDisposed()) {
@@ -121,7 +112,7 @@ public class ProjectComponent extends AbstractProjectComponent {
                 statusConsole.showStuff(editor, rspecContext);
             }
 
-            new ShowLetValue().showLetHintFor(editor, selection, rspecContext);
+            new ShowLetValueAction().showLetHintFor(editor, selection, rspecContext);
         }
     }
 }

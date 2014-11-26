@@ -39,10 +39,16 @@
   </project-components>
 
   <actions>
-    <action id="com.pivotallabs.rspecawesome.ShowLetValue" class="com.pivotallabs.rspec.ShowLetValue"
+    <action id="com.pivotallabs.rspecawesome.ShowLetValueAction" class="com.pivotallabs.rspec.ShowLetValueAction"
             text="Show Let Value">
       <add-to-group group-id="EditorPopupMenu" anchor="last"/>
       <keyboard-shortcut keymap="$default" first-keystroke="ctrl meta alt L"/>
+    </action>
+
+    <action id="com.pivotallabs.rspecawesome.ExtractLet" class="com.pivotallabs.rspec.ExtractLetAction"
+            text="Extract Let">
+      <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+      <keyboard-shortcut keymap="$default" first-keystroke="meta alt L"/>
     </action>
   </actions>
 
