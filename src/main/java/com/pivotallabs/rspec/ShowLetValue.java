@@ -27,15 +27,15 @@ public class ShowLetValue extends AnAction {
         if (element == null || element.getNode() == null)
             return;
 
-        RspecContextBuilder contextBuilder = new RspecContextBuilder(editor);
-        contextBuilder.searchScope(element);
-        showLetHintFor(editor, element, contextBuilder);
+        RspecContextBuilder contextBuilder = new RspecContextBuilder();
+        RspecContext rspecContext = contextBuilder.searchScope(element);
+        showLetHintFor(editor, element, rspecContext);
     }
 
-    public void showLetHintFor(Editor editor, PsiElement element, RspecContextBuilder contextBuilder) {
+    public void showLetHintFor(Editor editor, PsiElement element, RspecContext rspecContext) {
         String selectionText = element.getText();
         if (selectionText != null) {
-            Let let = contextBuilder.getLet(selectionText);
+            Let let = rspecContext.getLet(selectionText);
             if (let != null) {
                 showLetHint(editor, let);
             }

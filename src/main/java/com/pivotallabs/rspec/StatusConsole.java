@@ -11,6 +11,7 @@ import com.intellij.ui.JBColor;
 import java.awt.Component;
 import java.awt.Font;
 import java.text.MessageFormat;
+import java.util.Iterator;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -46,6 +47,31 @@ public class StatusConsole {
         return scrollView;
     }
 
+    public void showStuff(Editor editor, RspecContext rspecContext) {
+        clear();
+
+        for (Let let : rspecContext.getLets()) {
+            addItem(new StatusConsole.LetListItem(let, editor));
+        }
+
+        addItem(new StatusConsole.DividerItem());
+
+        for (BeforeOrAfter beforeOrAfter : rspecContext.getBeforeOrAfters()) {
+            addItem(new StatusConsole.BeforeItem(editor, beforeOrAfter));
+        }
+
+        addItem(new StatusConsole.DividerItem());
+
+        java.util.List<Part> descriptions = rspecContext.getDescriptions();
+        int numDescriptions = descriptions.size();
+        for (int i = 0; i < numDescriptions; i++) {
+            Part part = descriptions.get(i);
+            boolean last = i == numDescriptions - 1;
+            int offset = last ? editor.getCaretModel().getOffset() : part.getOffset();
+            addItem(new StatusConsole.ContextItem(editor, part, offset, i, last));
+        }
+    }
+
     public void clear() {
         listModel.clear();
     }
@@ -79,23 +105,19 @@ public class StatusConsole {
     }
 
     public static class ContextItem extends ListItem {
-        private final Editor editor;
         private final Part part;
-        private final int offset;
         private final int index;
         private final boolean isLast;
 
         public ContextItem(Editor editor, Part part, int offset, int index, boolean isLast) {
             super(editor, offset);
-            this.editor = editor;
             this.part = part;
-            this.offset = offset;
             this.index = index;
             this.isLast = isLast;
         }
 
         public String getText() {
-            return Util.htmlEscape(part.getText());
+            return (index == 0 ? "" : "→ ") + Util.htmlEscape(part.getText());
         }
     }
 
@@ -151,9 +173,11 @@ public class StatusConsole {
         String two_columns(String left, String right, boolean leftIsRed) {
             int leftLength = left.length();
             String nbsps = (new String(new char[Math.max(28 - leftLength, 0)])).replace("\0", "&nbsp;");
-            return MessageFormat.format("<b{0}>{1}</b>{2} {3}", new Object[]{
-                    leftIsRed ? " style=\"color: red;\"" : "", Util.htmlEscape(left).replaceAll(" ", "&nbsp;"), nbsps, StatusConsole.joinNewlines(Util.htmlEscape(right))
-            });
+            return MessageFormat.format("<b{0}>{1}</b>{2} {3}",
+                    leftIsRed ? " style=\"color: red;\"" : "",
+                    Util.htmlEscape(left).replaceAll(" ", "&nbsp;"),
+                    nbsps,
+                    StatusConsole.joinNewlines(Util.htmlEscape(right)));
         }
 
         public String getText() {
