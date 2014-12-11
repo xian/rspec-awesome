@@ -45,6 +45,12 @@
       <keyboard-shortcut keymap="$default" first-keystroke="ctrl meta alt L"/>
     </action>
 
+    <action id="com.pivotallabs.rspecawesome.ExtractMethod2Action" class="com.pivotallabs.rspec.ExtractMethod2Action"
+            text="Extract test2">
+      <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+      <keyboard-shortcut keymap="$default" first-keystroke="meta alt shift L"/>
+    </action>
+
     <action id="com.pivotallabs.rspecawesome.ExtractLet" class="com.pivotallabs.rspec.ExtractLetAction"
             text="Extract Let">
       <add-to-group group-id="EditorPopupMenu" anchor="last"/>

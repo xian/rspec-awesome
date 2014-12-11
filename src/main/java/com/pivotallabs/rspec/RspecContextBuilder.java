@@ -18,15 +18,8 @@ import java.util.*;
 class RspecContextBuilder {
     public static final Key<RspecContextFrame> USER_DATA_KEY = Key.create(RspecContextFrame.class.getName());
 
-    public final Set<String> LET_KEYWORDS
-            = new HashSet<String>(Arrays.asList("let", "let!", "subject", "subject!"));
-    public final Set<String> SCOPE_KEYWORDS
-            = new HashSet<String>(Arrays.asList("describe", "context", "it", "feature", "specify", "scenario"));
-    public final Set<String> BEFORE_AFTER_KEYWORDS
-            = new HashSet<String>(Arrays.asList("before", "after"));
-
     RspecContext searchScope(PsiElement selection) {
-        RBlockCall enclosingBlockCall = findContainingScope(selection);
+        RBlockCall enclosingBlockCall = Util.findContainingContext(selection);
 
         List<RspecContextFrame> rspecContextFrames = new ArrayList<RspecContextFrame>();
         searchScopeAndAscend(enclosingBlockCall, rspecContextFrames);
@@ -50,44 +43,26 @@ class RspecContextBuilder {
 
         rspecContextFrames.add(rspecContextFrame);
 
-        RBlockCall parentBlockColl = findContainingScope(contextBlockCall);
+        RBlockCall parentBlockColl = Util.findContainingSpecOrContext(contextBlockCall);
         searchScopeAndAscend(parentBlockColl, rspecContextFrames);
     }
 
     private void fillContextFrame(RBlockCall contextBlockCall, List<RspecContextFrame> rspecContextFrames, RCompoundStatement block, RspecContextFrame rspecContextFrame) {
         try {
             for (RBlockCall blockCall : PsiTreeUtil.getChildrenOfTypeAsList(block, RBlockCall.class)) {
-                if (isLetBlockCall(blockCall)) {
+                if (Util.isLetBlockCall(blockCall)) {
                     processLetOrSubject(blockCall, rspecContextFrame);
-                } else if (isBeforeOrAfterBlockCall(blockCall)) {
+                } else if (Util.isBeforeOrAfterBlockCall(blockCall)) {
                     processBeforeOrAfter(blockCall, rspecContextFrame);
                 }
             }
 
-            if (isScopeBlockCall(contextBlockCall)) {
+            if (Util.isContextBlockCall(contextBlockCall)) {
                 processContext(contextBlockCall, rspecContextFrame);
             }
         } catch (AssertionError e) {
             e.printStackTrace();
         }
-    }
-
-    public boolean isScopeBlockCall(RBlockCall contextBlockCall) {
-        RPossibleCall call = contextBlockCall.getCall();
-        String command = call.getPossibleCommand();
-        return SCOPE_KEYWORDS.contains(command);
-    }
-
-    public boolean isLetBlockCall(RBlockCall contextBlockCall) {
-        RPossibleCall call = contextBlockCall.getCall();
-        String command = call.getPossibleCommand();
-        return LET_KEYWORDS.contains(command);
-    }
-
-    public boolean isBeforeOrAfterBlockCall(RBlockCall contextBlockCall) {
-        RPossibleCall call = contextBlockCall.getCall();
-        String command = call.getPossibleCommand();
-        return BEFORE_AFTER_KEYWORDS.contains(command);
     }
 
     void processLetOrSubject(RBlockCall el, RspecContextFrame rspecContextFrame) {
@@ -154,20 +129,12 @@ class RspecContextBuilder {
         return null;
     }
 
-    public RBlockCall findContainingScope(PsiElement selection) {
-        RBlockCall blockCall = PsiTreeUtil.getParentOfType(selection, RBlockCall.class);
-        while (blockCall != null && !isScopeBlockCall(blockCall)) {
-            blockCall = PsiTreeUtil.getParentOfType(blockCall, RBlockCall.class);
-        }
-        return blockCall;
-    }
-
     public void invalidateContainingScope(PsiElement psiElement) {
         if (psiElement == null || !Util.isRspecFile(psiElement.getContainingFile())) {
             return;
         }
 
-        RBlockCall enclosingBlockCall = findContainingScope(psiElement);
+        RBlockCall enclosingBlockCall = Util.findContainingContext(psiElement);
         if (enclosingBlockCall != null) {
             enclosingBlockCall.putUserData(USER_DATA_KEY, null);
         }
