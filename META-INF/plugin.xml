@@ -1,17 +1,15 @@
 <idea-plugin version="2">
-  <id>com.pivotallabs.rspec</id>
+  <id>com.github.xian.rspec_awesome</id>
   <name>RSpec Awesome</name>
-  <version>1.0</version>
-  <vendor email="xian@pivotallabs.com" url="http://pivotallabs.com">Pivotal Labs</vendor>
+  <version>1.0-SNAPSHOT-20141211</version>
+  <vendor email="antixian666@gmail.com" url="https://github.com/xian">Christian Williams</vendor>
 
   <description><![CDATA[
-      Enter short description for your plugin here.<br>
-      <em>most HTML tags may be used</em>
+      Awesomer support for rspec in IntelliJ/RubyMine.
     ]]></description>
 
   <change-notes><![CDATA[
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>
+      <br><b>1.0-SNAPSHOT-20141211:</b> extract let works.
     ]]>
   </change-notes>
 
@@ -33,22 +31,22 @@
 
   <project-components>
     <component>
-      <implementation-class>com.pivotallabs.rspec.ProjectComponent</implementation-class>
+      <implementation-class>com.github.xian.rspec_awesome.ProjectComponent</implementation-class>
     </component>
     <!-- Add your project components here -->
   </project-components>
 
   <actions>
-    <action id="com.pivotallabs.rspecawesome.ShowLetValueAction" class="com.pivotallabs.rspec.ShowLetValueAction"
-            text="Show Let Value">
+    <action id="com.github.xian.rspec_awesome.ExtractLet" class="com.github.xian.rspec_awesome.ExtractLetAction"
+            text="Extract Let">
       <add-to-group group-id="EditorPopupMenu" anchor="last"/>
       <keyboard-shortcut keymap="$default" first-keystroke="ctrl meta alt L"/>
     </action>
 
-    <action id="com.pivotallabs.rspecawesome.ExtractLet" class="com.pivotallabs.rspec.ExtractLetAction"
-            text="Extract Let">
+    <action id="com.github.xian.rspec_awesome.ShowLetValueAction" class="com.github.xian.rspec_awesome.ShowLetValueAction"
+            text="Show Let Value">
       <add-to-group group-id="EditorPopupMenu" anchor="last"/>
-      <keyboard-shortcut keymap="$default" first-keystroke="meta alt L"/>
+      <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift meta alt L"/>
     </action>
   </actions>
 

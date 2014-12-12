@@ -1,4 +1,4 @@
-package com.pivotallabs.rspec;
+package com.github.xian.rspec_awesome;
 
 import com.intellij.codeInsight.hint.HintManager;
 import com.intellij.codeInsight.hint.HintManagerImpl;
@@ -20,7 +20,7 @@ import javax.swing.*;
 
 import java.awt.*;
 
-import static com.pivotallabs.rspec.Util.htmlEscape;
+import static com.github.xian.rspec_awesome.Util.htmlEscape;
 
 public class ShowLetValueAction extends AnAction {
     public void actionPerformed(AnActionEvent e) {

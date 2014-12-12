@@ -1,4 +1,4 @@
-package com.pivotallabs.rspec;
+package com.github.xian.rspec_awesome;
 
 import com.intellij.lang.Language;
 import com.intellij.lang.refactoring.RefactoringSupportProvider;

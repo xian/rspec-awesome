@@ -3,7 +3,7 @@
 // Decompiler options: packimports(3) 
 // Source File Name:   ProjectComponent.java
 
-package com.pivotallabs.rspec;
+package com.github.xian.rspec_awesome;
 
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
@@ -54,7 +54,7 @@ public class ProjectComponent extends AbstractProjectComponent {
 
     public void projectOpened() {
         ToolWindowManager twm = ToolWindowManagerEx.getInstance(myProject);
-        ToolWindow toolWindow = twm.registerToolWindow("RSpec Context", false, ToolWindowAnchor.BOTTOM, myProject);
+        ToolWindow toolWindow = twm.registerToolWindow("RSpec Awesome", false, ToolWindowAnchor.BOTTOM, myProject);
         statusConsole = new StatusConsole();
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         com.intellij.ui.content.Content content = contentFactory.createContent(statusConsole.getComponent(), "", true);
