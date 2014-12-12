@@ -114,22 +114,17 @@ public class ExtractLetAction extends IntroduceVariableAction {
 
         // cribbed from RubyIntroduceHandlerBase
         protected void performActionOnElement(final Project project, final Editor editor, PsiElement element1, final RPsiElement expression, String name, boolean replaceAll) {
-            final List occurrences = this.findOccurrences(expression);
-            if (this.supportsInplace() && editor.getSettings().isVariableInplaceRenameEnabled() && !ApplicationManager.getApplication().isUnitTestMode()) {
-                IntroduceValidator nameAndReplaceChoice1 = this.createValidator(element1, occurrences);
-                final List names = this.getSuggestedNames(expression, nameAndReplaceChoice1);
+            final List<PsiElement> occurrences = findOccurrences(expression);
+            if (supportsInplace() && editor.getSettings().isVariableInplaceRenameEnabled() && !ApplicationManager.getApplication().isUnitTestMode()) {
+                IntroduceValidator nameAndReplaceChoice1 = createValidator(element1, occurrences);
+                final List names = getSuggestedNames(expression, nameAndReplaceChoice1);
                 OccurrencesChooser.simpleChooser(editor).showChooser(element1, occurrences, new Pass<OccurrencesChooser.ReplaceChoice>() {
                     public void pass(OccurrencesChooser.ReplaceChoice choice) {
                         boolean replaceAll = choice == OccurrencesChooser.ReplaceChoice.ALL;
                         startingName = names.isEmpty() ? "var" : (String) names.get(0);
                         final PsiElement element = performIntroduce(project, expression, startingName, occurrences, replaceAll);
-                        PsiElement commonParent = PsiTreeUtil.findCommonParent(occurrences);
-//                        final RPsiElement scope = PsiTreeUtil.getParentOfType(commonParent, ScopeHolder.class);
-                        final RPsiElement scope = (RPsiElement) element;
+                        final RPsiElement scope = Util.findContainingContext(element);
                         final PsiElement[] arr = (PsiElement[]) occurrences.toArray(new PsiElement[occurrences.size()]);
-//                        if (!(element instanceof RAssignmentExpression)) {
-//                            LOG.error("element is not RAssignmentExpression", new String[]{element.getText(), expression.getText()});
-//                        }
 
                         final PsiNamedElement target = (RSymbol) ((RCall) ((RBlockCall) element).getCall()).getArguments().get(0);
 //                        final PsiNamedElement target = (PsiNamedElement)((RAssignmentExpression)element).getObject();
@@ -174,7 +169,7 @@ public class ExtractLetAction extends IntroduceVariableAction {
                     }
                 });
             } else {
-                Pair nameAndReplaceChoice = this.getParametersForRefactoring(project, expression, occurrences, name, replaceAll);
+                Pair nameAndReplaceChoice = getParametersForRefactoring(project, expression, occurrences, name, replaceAll);
                 if (nameAndReplaceChoice.first == null && nameAndReplaceChoice.second == null) {
                     return;
                 }
@@ -202,7 +197,7 @@ public class ExtractLetAction extends IntroduceVariableAction {
                         }
                     });
                 }
-            }, this.getTitle(), null);
+            }, getTitle(), null);
             return (PsiElement) result.get();
         }
 

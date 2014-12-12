@@ -1,6 +1,7 @@
 package com.pivotallabs.rspec;
 
 import com.intellij.codeInsight.hint.HintManager;
+import com.intellij.codeInsight.hint.HintManagerImpl;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.LangDataKeys;
@@ -10,8 +11,14 @@ import com.intellij.openapi.editor.colors.EditorFontType;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.tree.IElementType;
+import com.intellij.ui.LightweightHint;
+import org.jetbrains.plugins.ruby.ruby.lang.psi.basicTypes.RSymbol;
+import org.jetbrains.plugins.ruby.ruby.lang.psi.iterators.RBlockCall;
+import org.jetbrains.plugins.ruby.ruby.lang.psi.methodCall.RCall;
 
 import javax.swing.*;
+
+import java.awt.*;
 
 import static com.pivotallabs.rspec.Util.htmlEscape;
 
@@ -37,6 +44,17 @@ public class ShowLetValueAction extends AnAction {
         if (selectionText != null) {
             Let let = rspecContext.getLet(selectionText);
             if (let != null) {
+                try {
+                    PsiElement symbol = element.getParent().getParent();
+                    if (symbol instanceof RSymbol) {
+                        PsiElement letBlockCall = symbol.getParent().getParent().getParent();
+                        if (letBlockCall instanceof RBlockCall && Util.isLetBlockCall((RBlockCall) letBlockCall)) {
+                            return;
+                        }
+                    }
+                } catch (NullPointerException e) {
+                    // ignore
+                }
                 showLetHint(editor, let);
             }
         }
@@ -47,7 +65,8 @@ public class ShowLetValueAction extends AnAction {
                 htmlEscape(let.getType()), htmlEscape(let.getName()), htmlEscape(let.getValue())));
         label.setFont(editor.getColorsScheme().getFont(EditorFontType.CONSOLE_PLAIN));
         if (editor.getComponent().isValid()) {
-            HintManager.getInstance().showInformationHint(editor, label);
+            HintManagerImpl hintManager = (HintManagerImpl) HintManager.getInstance();
+            hintManager.showEditorHint(new LightweightHint(label), editor, HintManager.UNDER, 0, 0, true);
         }
     }
 
