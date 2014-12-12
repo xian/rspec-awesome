@@ -224,8 +224,10 @@ public class ExtractLetAction extends IntroduceVariableAction {
             }
 
             LanguageLevel languageLevel1 = RubyLanguageLevelPusher.getInstance().getLanguageLevelByElement(expression);
-            return RubyElementFactory.createExpressionFromText(project, "let(:" + name + ") { " + assignmentText + " }", languageLevel1);
-//            return RubyElementFactory.createExpressionFromText(project, name + " = " + assignmentText, languageLevel1);
+            String letText = assignmentText.contains("\n")
+                    ? ("let(:" + name + ") do\n" + assignmentText + "\nend")
+                    : ("let(:" + name + ") { " + assignmentText + " }");
+            return RubyElementFactory.createExpressionFromText(project, letText, languageLevel1);
         }
     }
 
