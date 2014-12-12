@@ -1,4 +1,4 @@
-package com.pivotallabs.rspec;
+package com.github.xian.rspec_awesome;
 
 import com.google.common.collect.Lists;
 

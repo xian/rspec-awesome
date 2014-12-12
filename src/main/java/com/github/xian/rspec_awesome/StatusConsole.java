@@ -3,7 +3,7 @@
 // Decompiler options: packimports(3) 
 // Source File Name:   StatusConsole.java
 
-package com.pivotallabs.rspec;
+package com.github.xian.rspec_awesome;
 
 import com.intellij.openapi.editor.*;
 import com.intellij.ui.JBColor;
@@ -16,7 +16,7 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-// Referenced classes of package com.pivotallabs.rspec:
+// Referenced classes of package com.github.xian.rspec_awesome:
 //            ProjectComponent
 
 public class StatusConsole {

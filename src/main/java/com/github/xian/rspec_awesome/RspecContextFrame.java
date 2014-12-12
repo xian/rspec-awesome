@@ -1,4 +1,4 @@
-package com.pivotallabs.rspec;
+package com.github.xian.rspec_awesome;
 
 import java.util.ArrayList;
 import java.util.HashMap;

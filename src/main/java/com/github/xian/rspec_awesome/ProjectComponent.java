@@ -3,7 +3,7 @@
 // Decompiler options: packimports(3) 
 // Source File Name:   ProjectComponent.java
 
-package com.pivotallabs.rspec;
+package com.github.xian.rspec_awesome;
 
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
@@ -20,7 +20,6 @@ import com.intellij.openapi.wm.ex.ToolWindowManagerEx;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.PsiManagerEx;
 import com.intellij.ui.content.ContentFactory;
-import org.jetbrains.plugins.ruby.ruby.lang.RubyFileType;
 
 import java.util.regex.Pattern;
 
@@ -51,18 +50,11 @@ public class ProjectComponent extends AbstractProjectComponent {
                     }
                 }
         );
-        multicaster.addDocumentListener(
-                new DocumentAdapter() {
-                    public void documentChanged(DocumentEvent e) {
-                        System.out.println((new StringBuilder()).append("Document changed: ").append(e).toString());
-                    }
-                }
-        );
     }
 
     public void projectOpened() {
         ToolWindowManager twm = ToolWindowManagerEx.getInstance(myProject);
-        ToolWindow toolWindow = twm.registerToolWindow("RSpec Context", false, ToolWindowAnchor.BOTTOM, myProject);
+        ToolWindow toolWindow = twm.registerToolWindow("RSpec Awesome", false, ToolWindowAnchor.BOTTOM, myProject);
         statusConsole = new StatusConsole();
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         com.intellij.ui.content.Content content = contentFactory.createContent(statusConsole.getComponent(), "", true);
@@ -98,7 +90,6 @@ public class ProjectComponent extends AbstractProjectComponent {
     }
 
     private void caretMoved(CaretEvent e) {
-        System.out.println((new StringBuilder()).append("Caret changed: ").append(e).toString());
         Editor editor = e.getEditor();
         Project project = editor.getProject();
         if (project == null || project.isDisposed()) {
@@ -121,7 +112,7 @@ public class ProjectComponent extends AbstractProjectComponent {
                 statusConsole.showStuff(editor, rspecContext);
             }
 
-            new ShowLetValue().showLetHintFor(editor, selection, rspecContext);
+            new ShowLetValueAction().showLetHintFor(editor, selection, rspecContext);
         }
     }
 }

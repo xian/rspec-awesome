@@ -1,4 +1,4 @@
-package com.pivotallabs.rspec;
+package com.github.xian.rspec_awesome;
 
 import com.intellij.openapi.util.Key;
 import com.intellij.psi.PsiElement;
@@ -17,15 +17,9 @@ import java.util.*;
 
 class RspecContextBuilder {
     public static final Key<RspecContextFrame> USER_DATA_KEY = Key.create(RspecContextFrame.class.getName());
-    public final Set<String> LET_KEYWORDS
-            = new HashSet<String>(Arrays.asList("let", "let!", "subject", "subject!"));
-    public final Set<String> SCOPE_KEYWORDS
-            = new HashSet<String>(Arrays.asList("describe", "context", "it", "feature", "specify", "scenario"));
-    public final Set<String> BEFORE_AFTER_KEYWORDS
-            = new HashSet<String>(Arrays.asList("before", "after"));
 
     RspecContext searchScope(PsiElement selection) {
-        RBlockCall enclosingBlockCall = findContainingScope(selection);
+        RBlockCall enclosingBlockCall = Util.findContainingContext(selection);
 
         List<RspecContextFrame> rspecContextFrames = new ArrayList<RspecContextFrame>();
         searchScopeAndAscend(enclosingBlockCall, rspecContextFrames);
@@ -43,43 +37,32 @@ class RspecContextBuilder {
         if (rspecContextFrame == null) {
             rspecContextFrame = new RspecContextFrame();
             contextBlockCall.putUserData(USER_DATA_KEY, rspecContextFrame);
-            System.out.println(String.format("Created new RspecContextFrame for %.30s", contextBlockCall.getText().replaceAll("\n", " ")));
 
             fillContextFrame(contextBlockCall, rspecContextFrames, block, rspecContextFrame);
         }
 
         rspecContextFrames.add(rspecContextFrame);
 
-        RBlockCall parentBlockColl = findContainingScope(contextBlockCall);
+        RBlockCall parentBlockColl = Util.findContainingSpecOrContext(contextBlockCall);
         searchScopeAndAscend(parentBlockColl, rspecContextFrames);
     }
 
     private void fillContextFrame(RBlockCall contextBlockCall, List<RspecContextFrame> rspecContextFrames, RCompoundStatement block, RspecContextFrame rspecContextFrame) {
         try {
             for (RBlockCall blockCall : PsiTreeUtil.getChildrenOfTypeAsList(block, RBlockCall.class)) {
-                RPossibleCall call = blockCall.getCall();
-                String command = call.getPossibleCommand();
-                if (LET_KEYWORDS.contains(command)) {
+                if (Util.isLetBlockCall(blockCall)) {
                     processLetOrSubject(blockCall, rspecContextFrame);
-                    continue;
-                }
-                if (BEFORE_AFTER_KEYWORDS.contains(command)) {
+                } else if (Util.isBeforeOrAfterBlockCall(blockCall)) {
                     processBeforeOrAfter(blockCall, rspecContextFrame);
                 }
             }
 
-            if (isScopeBlockCall(contextBlockCall)) {
+            if (Util.isContextBlockCall(contextBlockCall)) {
                 processContext(contextBlockCall, rspecContextFrame);
             }
         } catch (AssertionError e) {
             e.printStackTrace();
         }
-    }
-
-    private boolean isScopeBlockCall(RBlockCall contextBlockCall) {
-        RPossibleCall call = contextBlockCall.getCall();
-        String command = call.getPossibleCommand();
-        return SCOPE_KEYWORDS.contains(command);
     }
 
     void processLetOrSubject(RBlockCall el, RspecContextFrame rspecContextFrame) {
@@ -146,28 +129,13 @@ class RspecContextBuilder {
         return null;
     }
 
-    private RBlockCall findContainingScope(PsiElement selection) {
-        RBlockCall blockCall = PsiTreeUtil.getParentOfType(selection, RBlockCall.class);
-        while (blockCall != null && !isScopeBlockCall(blockCall)) {
-            System.out.println("Skipping non-context: " + blockCall.getText());
-            blockCall = PsiTreeUtil.getParentOfType(blockCall, RBlockCall.class);
-        }
-        return blockCall;
-    }
-
     public void invalidateContainingScope(PsiElement psiElement) {
         if (psiElement == null || !Util.isRspecFile(psiElement.getContainingFile())) {
             return;
         }
 
-        RBlockCall enclosingBlockCall = findContainingScope(psiElement);
+        RBlockCall enclosingBlockCall = Util.findContainingContext(psiElement);
         if (enclosingBlockCall != null) {
-            RspecContextFrame rspecContextFrame = enclosingBlockCall.getUserData(USER_DATA_KEY);
-            if (rspecContextFrame != null) {
-                Part description = rspecContextFrame.getDescription();
-                System.out.println("Dropping cached context for " + (description == null ? "????" : description.getText()));
-            }
-
             enclosingBlockCall.putUserData(USER_DATA_KEY, null);
         }
     }
